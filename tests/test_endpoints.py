@@ -1,3 +1,4 @@
+import pytest
 from httpx import AsyncClient
 
 
@@ -21,11 +22,15 @@ async def test_list_shows_all_offers(client: AsyncClient) -> None:
     assert "Results found" not in response.text
 
 
-async def test_empty_search_is_same_as_no_search(client: AsyncClient) -> None:
-    response = await client.get("/list", params={"search": ""})
+@pytest.mark.parametrize("query", ["", "   "])
+async def test_blank_search_is_same_as_no_search(
+    client: AsyncClient, query: str
+) -> None:
+    response = await client.get("/list", params={"search": query})
 
     assert response.status_code == 200
     assert card_count(response.text) == 4
+    assert "Results found" not in response.text
 
 
 async def test_search_returns_only_matching_game(client: AsyncClient) -> None:

@@ -19,8 +19,9 @@ async def list_offers(
 ) -> Response:
     """List all game offers or search by game name (fuzzy matching)."""
     service = GameService(db)
-    if search:
-        offers = await service.search_offers(search)
+    query = (search or "").strip()
+    if query:
+        offers = await service.search_offers(query)
     else:
         offers = await service.get_all_offers()
 
@@ -29,7 +30,7 @@ async def list_offers(
         "list.html",
         {
             "games": offers,
-            "search_query": search or "",
+            "search_query": query,
             "results_count": len(offers),
         },
     )
