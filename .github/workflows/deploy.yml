@@ -1,0 +1,52 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: [self-hosted, eneba-deploy]
+    timeout-minutes: 20
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Write .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          umask 077
+          printf '%s\n' "$ENV_FILE" > .env
+
+      - name: Build and start containers
+        run: docker compose up -d --build --remove-orphans
+
+      - name: Check that the app responds
+        run: |
+          for _ in $(seq 1 30); do
+            curl -fsS "http://$(docker compose port web 8000)/list" > /dev/null && exit 0
+            sleep 2
+          done
+          docker compose logs --tail 50 web
+          exit 1
+
+      - name: Remove dangling images
+        run: docker image prune --force
