@@ -52,3 +52,12 @@ migrate: ## Apply migrations. Requires DB container to be running.
 .PHONY: lint
 lint: ## Run linting and formatting checks (pre-commit on all files).
 	uv run pre-commit run --all-files
+
+##@ Tests
+
+.PHONY: test
+test: ## Run tests against a throwaway DB container. Usage: make test [args="-k search"]
+	docker compose -f docker-compose.test.yml --env-file .env.test up -d --wait
+	uv run pytest $(args); status=$$?; \
+	docker compose -f docker-compose.test.yml --env-file .env.test down -v; \
+	exit $$status
