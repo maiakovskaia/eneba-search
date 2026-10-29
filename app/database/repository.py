@@ -1,9 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload
 from rapidfuzz import fuzz
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
-from app.database.models import Games, GameOffers, GamePlatforms
+from app.database.models import GameOffers
 
 
 async def get_all_offers(db: AsyncSession):
@@ -17,9 +17,8 @@ async def get_all_offers(db: AsyncSession):
 async def search_offers(db: AsyncSession, search_query: str):
     normalized_query = search_query.lower().strip()
 
-    stmt = (
-        select(GameOffers)
-        .options(joinedload(GameOffers.game), joinedload(GameOffers.platform))
+    stmt = select(GameOffers).options(
+        joinedload(GameOffers.game), joinedload(GameOffers.platform)
     )
     result = await db.execute(stmt)
     all_offers = result.scalars().unique().all()

@@ -6,7 +6,9 @@ RUN pip install uv
 
 COPY pyproject.toml uv.lock* ./
 
-RUN uv sync
+ENV UV_NO_DEV=1
+
+RUN uv sync --locked
 
 COPY . .
 

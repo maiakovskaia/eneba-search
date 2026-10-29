@@ -1,19 +1,95 @@
 [project]
 name = "eneba-search"
 version = "0.1.0"
-description = "Add your description here"
+description = "Game offers search with fuzzy matching: FastAPI, PostgreSQL, Jinja2."
 readme = "README.md"
+authors = [
+    {name = "Katerina Maiakovskaia"}
+]
 requires-python = ">=3.13"
 dependencies = [
-    "alembic>=1.18.1",
-    "asyncpg>=0.31.0",
-    "fastapi>=0.128.0",
-    "greenlet>=3.3.0",
-    "jinja2>=3.1.6",
-    "psycopg2-binary>=2.9",
-    "pydantic-settings>=2.12.0",
-    "python-dotenv>=1.2.1",
-    "rapidfuzz>=3.14.3",
-    "sqlalchemy>=2.0.45",
-    "uvicorn[standard]>=0.40.0",
+    "alembic==1.20.1",
+    "asyncpg==0.32.0",
+    "fastapi==0.162.0",
+    "greenlet==3.5.6",
+    "jinja2==3.1.6",
+    "pydantic-settings==2.16.2",
+    "rapidfuzz==3.14.6",
+    "sqlalchemy==2.1.6",
+    "uvicorn[standard]==0.54.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pre-commit==4.7.0",
+    "ruff==0.17.3",
+]
+
+[tool.ruff.lint]
+select = [
+  "ASYNC",  # flake8-async
+  "B",      # flake8-bugbear
+  "C90",    # mccabe
+  "D",      # pydocstyle
+  "E",      # pycodestyle
+  "ERA",    # eradicate
+  "F",      # pyflakes
+  "FA",     # flake8-future-annotations
+  "FAST",   # FastAPI
+  "FLY",    # flynt
+  "I",      # isort
+  "N",      # pep8-naming
+  "PERF",   # Perflint
+  "PIE",    # flake8-pie
+  "RUF",    # ruff
+  "RSE",    # flake8-raise
+  "SIM",    # flake8-simplify
+  "T10",    # flake8-debugger
+  "T20",    # flake8-print
+  "TID",    # flake8-tidy-imports
+  "TRY",    # tryceratops
+  "UP",     # pyupgrade
+  "W",      # pycodestyle
+]
+ignore = [
+  # Pydocstyle
+  "D10",      # Missing docstring in public ...
+  "D203",     # 1 blank line required before class docstring
+  "D212",     # Multi-line docstring summary should start at the first line
+  "D413",     # Missing blank line after last section
+]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/versions/*" = ["D400", "D415"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["app", "scripts"]
+split-on-trailing-comma = false
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pycodestyle]
+ignore-overlong-task-comments = true
+max-doc-length = 88
+max-line-length = 88
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.alembic]
+script_location = "%(here)s/alembic"
+prepend_sys_path = ["."]
+
+[[tool.alembic.post_write_hooks]]
+name = "ruff lint"
+type = "exec"
+executable = "ruff"
+options = "check --fix-only --quiet REVISION_SCRIPT_FILENAME"
+
+[[tool.alembic.post_write_hooks]]
+name = "ruff format"
+type = "exec"
+executable = "ruff"
+options = "format --quiet REVISION_SCRIPT_FILENAME"

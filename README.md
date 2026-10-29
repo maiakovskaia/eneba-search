@@ -4,7 +4,7 @@ A web application for searching and browsing game offers with fuzzy search funct
 
 ## About
 
-This application provides a game marketplace interface where users can search for games using fuzzy matching. The search supports partial matches and typo tolerance (e.g., "fifa2" matches "FIFA 23", "fif" matches "FIFA 23"). 
+This application provides a game marketplace interface where users can search for games using fuzzy matching. The search supports partial matches and typo tolerance (e.g., "fifa2" matches "FIFA 23", "fif" matches "FIFA 23").
 
 ## Tech Stack
 

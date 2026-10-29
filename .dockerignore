@@ -12,3 +12,4 @@ __pycache__
 *.sqlite3
 README.md
 .DS_Store
+.ruff_cache

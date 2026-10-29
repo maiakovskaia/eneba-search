@@ -1,9 +1,11 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services import GameService
 from app.database.connection import get_db
+from app.services import GameService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -11,13 +13,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("")
 async def list_offers(
-        request: Request,
-        search: str | None = Query(None),
-        db: AsyncSession = Depends(get_db)
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    search: Annotated[str | None, Query()] = None,
 ):
-    """
-    List all game offers or search by game name (fuzzy matching).
-    """
+    """List all game offers or search by game name (fuzzy matching)."""
     service = GameService(db)
     if search:
         offers = await service.search_offers(search)
@@ -25,11 +25,11 @@ async def list_offers(
         offers = await service.get_all_offers()
 
     return templates.TemplateResponse(
+        request,
         "list.html",
         {
-            "request": request,
             "games": offers,
             "search_query": search or "",
-            "results_count": len(offers)
-        }
+            "results_count": len(offers),
+        },
     )

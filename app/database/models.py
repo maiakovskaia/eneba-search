@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.database.connection import Base
 
 
@@ -38,4 +39,3 @@ class GameOffers(Base):
 
     game = relationship("Games", back_populates="offers")
     platform = relationship("GamePlatforms", back_populates="offers")
-

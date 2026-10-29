@@ -1,11 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_all_offers, GameOffers, search_offers
+from app.database import GameOffers, get_all_offers, search_offers
 from app.schemas import GameOfferResponse
 
 
 class GameService:
-
     def __init__(self, db: AsyncSession):
         self.db = db
 
