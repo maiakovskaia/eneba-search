@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16-alpine
@@ -11,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       PGPORT: ${POSTGRES_PORT:-5432}
     ports:
-      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,7 +25,7 @@ services:
     container_name: eneba-web
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
@@ -43,30 +41,5 @@ services:
     env_file:
       - .env
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: eneba-caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile.template:/etc/caddy/Caddyfile.template
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-    environment:
-      DOMAIN: ${DOMAIN}
-    env_file:
-      - .env
-    command: >
-      sh -c "apk add --no-cache gettext &&
-             envsubst < /etc/caddy/Caddyfile.template > /etc/caddy/Caddyfile &&
-             caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"
-    profiles: ["prod"]
-
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:
