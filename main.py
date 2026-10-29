@@ -14,7 +14,7 @@ app.include_router(router)
 
 
 @app.get("/")
-async def root():
+async def root() -> RedirectResponse:
     """Redirect to /list."""
     return RedirectResponse(url="/list")
 

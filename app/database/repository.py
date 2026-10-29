@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from rapidfuzz import fuzz
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +8,7 @@ from sqlalchemy.orm import joinedload
 from app.database.models import GameOffers
 
 
-async def get_all_offers(db: AsyncSession):
+async def get_all_offers(db: AsyncSession) -> Sequence[GameOffers]:
     query = select(GameOffers).options(
         joinedload(GameOffers.game), joinedload(GameOffers.platform)
     )
@@ -14,7 +16,7 @@ async def get_all_offers(db: AsyncSession):
     return result.scalars().unique().all()
 
 
-async def search_offers(db: AsyncSession, search_query: str):
+async def search_offers(db: AsyncSession, search_query: str) -> list[GameOffers]:
     normalized_query = search_query.lower().strip()
 
     stmt = select(GameOffers).options(
@@ -23,7 +25,7 @@ async def search_offers(db: AsyncSession, search_query: str):
     result = await db.execute(stmt)
     all_offers = result.scalars().unique().all()
 
-    scored_offers = []
+    scored_offers: list[tuple[float, GameOffers]] = []
     for offer in all_offers:
         offer_title = offer.game.title.lower().strip()
 

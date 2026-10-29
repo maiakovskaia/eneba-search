@@ -15,7 +15,7 @@ from app.database.models import GameOffers, GamePlatforms, Games
 logger = logging.getLogger(__name__)
 
 
-async def populate_database():
+async def populate_database() -> None:
     async with AsyncSessionLocal() as db:
         try:
             # Clear existing data

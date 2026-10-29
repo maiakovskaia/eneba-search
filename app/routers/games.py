@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +16,7 @@ async def list_offers(
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
     search: Annotated[str | None, Query()] = None,
-):
+) -> Response:
     """List all game offers or search by game name (fuzzy matching)."""
     service = GameService(db)
     if search:

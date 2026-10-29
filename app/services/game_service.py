@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import GameOffers, get_all_offers, search_offers
@@ -19,7 +21,7 @@ class GameService:
         return self._extract_offers(filtered_offers)
 
     @staticmethod
-    def _extract_offers(offers: list[GameOffers]) -> list[GameOfferResponse]:
+    def _extract_offers(offers: Sequence[GameOffers]) -> list[GameOfferResponse]:
         result = []
         for offer in offers:
             final_price = None

@@ -36,8 +36,8 @@ class AppConfig(BaseSettings):
 
 
 class Settings(BaseSettings):
-    app: AppConfig = AppConfig()  # type: ignore
-    database: DatabaseConfig = DatabaseConfig()  # type: ignore
+    app: AppConfig = AppConfig()
+    database: DatabaseConfig = DatabaseConfig()
 
 
 settings = Settings()
