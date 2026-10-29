@@ -7,7 +7,7 @@ Run with: python -m scripts.populate_db
 import asyncio
 import logging
 
-from sqlalchemy import text
+from sqlalchemy import select
 
 from app.database.connection import AsyncSessionLocal
 from app.database.models import GameOffers, GamePlatforms, Games
@@ -18,31 +18,26 @@ logger = logging.getLogger(__name__)
 async def populate_database() -> None:
     async with AsyncSessionLocal() as db:
         try:
-            # Clear existing data
-            await db.execute(
-                text(
-                    "TRUNCATE TABLE game_offers, games, platforms "
-                    "RESTART IDENTITY CASCADE"
-                )
-            )
+            if await db.scalar(select(Games.id).limit(1)) is not None:
+                logger.info("Database already has data, skipping populate")
+                return
 
             # Create Games
-            games_data = [
-                Games(title="FIFA 23", image_url="/static/img/fifa23.jpeg"),
-                Games(title="Red Dead Redemption 2", image_url="/static/img/rdr2.jpeg"),
-                Games(
-                    title="Split Fiction", image_url="/static/img/split_fiction.jpeg"
-                ),
-            ]
+            fifa = Games(title="FIFA 23", image_url="/static/img/fifa23.jpeg")
+            rdr2 = Games(
+                title="Red Dead Redemption 2", image_url="/static/img/rdr2.jpeg"
+            )
+            split_fiction = Games(
+                title="Split Fiction", image_url="/static/img/split_fiction.jpeg"
+            )
+            games_data = [fifa, rdr2, split_fiction]
             db.add_all(games_data)
-            await db.flush()
 
             # Create Platforms
-            platforms_data = [
-                GamePlatforms(name="Origin", icon_url="/static/img/origin.svg"),
-                GamePlatforms(name="Steam", icon_url="/static/img/steam.svg"),
-                GamePlatforms(name="Xbox", icon_url="/static/img/xbox.svg"),
-            ]
+            origin = GamePlatforms(name="Origin", icon_url="/static/img/origin.svg")
+            steam = GamePlatforms(name="Steam", icon_url="/static/img/steam.svg")
+            xbox = GamePlatforms(name="Xbox", icon_url="/static/img/xbox.svg")
+            platforms_data = [origin, steam, xbox]
             db.add_all(platforms_data)
             await db.flush()
 
@@ -50,8 +45,8 @@ async def populate_database() -> None:
             offers_data = [
                 # FIFA 23 offers
                 GameOffers(
-                    game_id=1,
-                    platform_id=1,
+                    game_id=fifa.id,
+                    platform_id=origin.id,
                     region="GLOBAL",
                     edition="Standard Edition",
                     likes_count=1250,
@@ -60,8 +55,8 @@ async def populate_database() -> None:
                     cashback_amount=2.99,
                 ),
                 GameOffers(
-                    game_id=1,
-                    platform_id=1,
+                    game_id=fifa.id,
+                    platform_id=origin.id,
                     region="EUROPE",
                     edition="Ultimate Edition",
                     likes_count=890,
@@ -70,8 +65,8 @@ async def populate_database() -> None:
                     cashback_amount=None,
                 ),
                 GameOffers(
-                    game_id=1,
-                    platform_id=2,
+                    game_id=fifa.id,
+                    platform_id=steam.id,
                     region="GLOBAL",
                     edition="Standard Edition",
                     likes_count=2100,
@@ -80,8 +75,8 @@ async def populate_database() -> None:
                     cashback_amount=1.50,
                 ),
                 GameOffers(
-                    game_id=1,
-                    platform_id=3,
+                    game_id=fifa.id,
+                    platform_id=xbox.id,
                     region="EUROPE",
                     edition="Champions Edition",
                     likes_count=670,
@@ -91,8 +86,8 @@ async def populate_database() -> None:
                 ),
                 # Red Dead Redemption 2 offers
                 GameOffers(
-                    game_id=2,
-                    platform_id=2,
+                    game_id=rdr2.id,
+                    platform_id=steam.id,
                     region="GLOBAL",
                     edition="Ultimate Edition",
                     likes_count=3450,
@@ -101,8 +96,8 @@ async def populate_database() -> None:
                     cashback_amount=2.50,
                 ),
                 GameOffers(
-                    game_id=2,
-                    platform_id=2,
+                    game_id=rdr2.id,
+                    platform_id=steam.id,
                     region="EUROPE",
                     edition="Standard Edition",
                     likes_count=2890,
@@ -111,8 +106,8 @@ async def populate_database() -> None:
                     cashback_amount=None,
                 ),
                 GameOffers(
-                    game_id=2,
-                    platform_id=3,
+                    game_id=rdr2.id,
+                    platform_id=xbox.id,
                     region="GLOBAL",
                     edition="Special Edition",
                     likes_count=1560,
@@ -121,8 +116,8 @@ async def populate_database() -> None:
                     cashback_amount=None,
                 ),
                 GameOffers(
-                    game_id=2,
-                    platform_id=1,
+                    game_id=rdr2.id,
+                    platform_id=origin.id,
                     region="EUROPE",
                     edition=None,
                     likes_count=990,
@@ -132,8 +127,8 @@ async def populate_database() -> None:
                 ),
                 # Split Fiction offers
                 GameOffers(
-                    game_id=3,
-                    platform_id=2,
+                    game_id=split_fiction.id,
+                    platform_id=steam.id,
                     region="GLOBAL",
                     edition="EA App Key",
                     likes_count=626,
@@ -142,8 +137,8 @@ async def populate_database() -> None:
                     cashback_amount=4.50,
                 ),
                 GameOffers(
-                    game_id=3,
-                    platform_id=3,
+                    game_id=split_fiction.id,
+                    platform_id=xbox.id,
                     region="EUROPE",
                     edition="XBOX LIVE Key",
                     likes_count=500,
@@ -152,8 +147,8 @@ async def populate_database() -> None:
                     cashback_amount=3.76,
                 ),
                 GameOffers(
-                    game_id=3,
-                    platform_id=3,
+                    game_id=split_fiction.id,
+                    platform_id=xbox.id,
                     region="GLOBAL",
                     edition="XBOX LIVE Key",
                     likes_count=1039,
@@ -162,8 +157,8 @@ async def populate_database() -> None:
                     cashback_amount=3.87,
                 ),
                 GameOffers(
-                    game_id=3,
-                    platform_id=1,
+                    game_id=split_fiction.id,
+                    platform_id=origin.id,
                     region="EUROPE",
                     edition="Nintendo Switch eShop Key",
                     likes_count=288,
@@ -172,8 +167,8 @@ async def populate_database() -> None:
                     cashback_amount=3.99,
                 ),
                 GameOffers(
-                    game_id=3,
-                    platform_id=2,
+                    game_id=split_fiction.id,
+                    platform_id=steam.id,
                     region="EUROPE",
                     edition="Steam Key",
                     likes_count=820,
